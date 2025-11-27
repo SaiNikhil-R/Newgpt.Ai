@@ -1,10 +1,15 @@
 import { GoogleGenAI, GenerateContentResponse, Operation } from "@google/genai";
 import type { UploadedFile, Model } from '../types';
 
-// Per guidelines, API key is from process.env.API_KEY.
 // A new instance is created for each call to use the latest key.
 const getAi = () => {
-  return new GoogleGenAI({ apiKey: process.env.API_KEY });
+  // Fix: Use process.env.API_KEY as per the coding guidelines. This resolves the TypeScript error
+  // 'Property 'env' does not exist on type 'ImportMeta'' by avoiding import.meta.env.
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) {
+    throw new Error('API_KEY not found. Please set it in your environment variables.');
+  }
+  return new GoogleGenAI({ apiKey });
 };
 
 const fileToGenerativePart = (file: UploadedFile) => {
@@ -88,7 +93,7 @@ export const generateImage = async (model: Model, prompt: string, file: Uploaded
   return { imageUrl, text };
 };
 
-// FIX: Implement and export startVideoGeneration for Veo models.
+
 export const startVideoGeneration = async (
   model: Model,
   prompt: string,
@@ -116,7 +121,7 @@ export const startVideoGeneration = async (
   return operation;
 };
 
-// FIX: Implement and export checkVideoGenerationStatus for Veo models.
+
 export const checkVideoGenerationStatus = async (
   operation: Operation
 ): Promise<Operation> => {

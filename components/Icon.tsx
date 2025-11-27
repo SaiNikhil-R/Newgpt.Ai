@@ -1,8 +1,7 @@
 import React from 'react';
 
-// FIX: Add 'star' and 'video' to the icon type to support the SubscriptionModal.
 interface IconProps extends React.SVGProps<SVGSVGElement> {
-  icon: 'user' | 'model' | 'send' | 'upload' | 'close' | 'loading' | 'image' | 'text' | 'code' | 'doc' | 'info' | 'plus' | 'star' | 'video';
+  icon: 'user' | 'model' | 'send' | 'upload' | 'close' | 'loading' | 'image' | 'text' | 'code' | 'doc' | 'info' | 'plus';
 }
 
 const Icon: React.FC<IconProps> = ({ icon, className, ...props }) => {
@@ -42,13 +41,6 @@ const Icon: React.FC<IconProps> = ({ icon, className, ...props }) => {
     ),
     plus: (
       <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-    ),
-    // FIX: Add 'star' and 'video' icons.
-    star: (
-      <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.612.049.863.845.42 1.258l-4.223 3.86a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.223-3.86a.562.562 0 01.42-1.258l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
-    ),
-    video: (
-      <path strokeLinecap="round" strokeLinejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9A2.25 2.25 0 0 0 4.5 18.75z" />
     ),
   };
 

@@ -81,7 +81,8 @@ export const useVeo = () => {
           } else {
             const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
             if (downloadLink) {
-              // Use process.env.API_KEY to fetch video.
+              // Fix: Use process.env.API_KEY as per the coding guidelines. This resolves the TypeScript error
+              // 'Property 'env' does not exist on type 'ImportMeta'' by avoiding import.meta.env.
               const videoResponse = await fetch(`${downloadLink}&key=${process.env.API_KEY}`);
               const videoBlob = await videoResponse.blob();
               const objectUrl = URL.createObjectURL(videoBlob);
