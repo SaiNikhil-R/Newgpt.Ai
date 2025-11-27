@@ -1,7 +1,5 @@
 {
   "name": "NewGpt.Ai - Unified AI Chat",
   "description": "An advanced AI chat interface that integrates multiple models for text, image, and video generation in one seamless experience. Upload files, select from a wide range of models, and interact with the future of AI.",
-  "requestFramePermissions": [
-    "geolocation"
-  ]
+  "requestFramePermissions": []
 }

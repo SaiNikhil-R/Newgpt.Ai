@@ -6,16 +6,12 @@ import ModelSelector from './ModelSelector';
 import Message from './Message';
 import Icon from './Icon';
 
-// FIX: Add type declaration for the Chrome extension API to resolve compile-time errors.
-declare const chrome: any;
-
 const ChatInterface: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [selectedModel, setSelectedModel] = useState<Model>(MODELS[0]);
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isScreenshotSupported, setIsScreenshotSupported] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -27,12 +23,6 @@ const ChatInterface: React.FC = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-  
-  useEffect(() => {
-    if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.captureVisibleTab) {
-      setIsScreenshotSupported(true);
-    }
-  }, []);
 
   const handleModelChange = (modelId: string) => {
     const newModel = MODELS.find(m => m.id === modelId) || MODELS[0];
@@ -64,40 +54,6 @@ const ChatInterface: React.FC = () => {
       reader.readAsDataURL(file);
     }
   };
-
-  const handleScreenshot = useCallback(() => {
-    if (!isScreenshotSupported) {
-      console.error("Screenshot feature is only available in the Chrome extension environment.");
-      return;
-    }
-
-    chrome.tabs.captureVisibleTab(
-      null,
-      { format: 'jpeg', quality: 90 },
-      (dataUrl: string) => {
-        if (chrome.runtime.lastError) {
-          console.error(chrome.runtime.lastError.message);
-          alert(`Could not take screenshot: ${chrome.runtime.lastError.message}`);
-          return;
-        }
-        
-        if (dataUrl) {
-          const [header, base64Data] = dataUrl.split(',');
-          const mimeType = header.match(/:(.*?);/)?.[1] || 'image/jpeg';
-          
-          // Approximate size of the base64 string in bytes
-          const sizeInBytes = Math.ceil(base64Data.length * 3 / 4);
-
-          setUploadedFile({
-            base64: base64Data,
-            mimeType: mimeType,
-            name: 'screenshot.jpeg',
-            size: sizeInBytes,
-          });
-        }
-      }
-    );
-  }, [isScreenshotSupported]);
 
   const handleSendMessage = useCallback(async () => {
     if ((!input.trim() && !uploadedFile) || isLoading) return;
@@ -161,7 +117,7 @@ const ChatInterface: React.FC = () => {
         console.error(error);
         let errorMessage = `An error occurred with model "${selectedModel.name}". Please try again.`;
         if (error.message?.includes('API key not found')) {
-            errorMessage = 'Your Gemini API key is not set. Please set it in the extension settings.'
+            errorMessage = 'API key not found. Please ensure it is configured correctly.'
         } else if (error.toString().includes('PERMISSION_DENIED')) {
           errorMessage = `Permission Denied. Your API key may be invalid or missing permissions. Please ensure the "Generative Language API" is enabled in your Google Cloud project and try again.`;
         }
@@ -216,21 +172,6 @@ const ChatInterface: React.FC = () => {
             style={{maxHeight: '200px'}}
           />
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
-             <button
-                onClick={handleScreenshot}
-                className="p-2 rounded-full hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={isLoading || !selectedModel.supportsImage || !isScreenshotSupported}
-                aria-label="Take screenshot"
-                title={
-                  !isScreenshotSupported
-                    ? "Screenshot feature is only available in the Chrome extension."
-                    : !selectedModel.supportsImage
-                      ? "The selected model does not support image attachments."
-                      : "Take a screenshot of the current tab"
-                }
-            >
-                <Icon icon="camera" className="w-6 h-6 text-dark-text-secondary" />
-            </button>
             <button
                 onClick={() => fileInputRef.current?.click()}
                 className="p-2 rounded-full hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"

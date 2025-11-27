@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
 import { Model, UploadedFile } from '../types';
-// FIX: getApiKey is removed from geminiService
 import { startVideoGeneration, checkVideoGenerationStatus } from '../services/geminiService';
 
 declare global {
@@ -40,7 +39,7 @@ export const useVeo = () => {
     setVideoUrl(null);
 
     try {
-      // FIX: Add API key check for VEO models per guidelines.
+      // Add API key check for VEO models per guidelines.
       if (window.aistudio) {
         const hasKey = await window.aistudio.hasSelectedApiKey();
         if (!hasKey) {
@@ -59,7 +58,7 @@ export const useVeo = () => {
           try {
              operation = await checkVideoGenerationStatus(operation);
           } catch(e: any) {
-             // FIX: Handle API key error during polling.
+             // Handle API key error during polling.
              if (e.message?.includes('Requested entity was not found.') && window.aistudio) {
                 const keyError = 'Your API key seems invalid. Please select a key from a project with billing enabled. For more info, visit ai.google.dev/gemini-api/docs/billing';
                 setError(keyError);
@@ -82,7 +81,7 @@ export const useVeo = () => {
           } else {
             const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
             if (downloadLink) {
-              // FIX: Use process.env.API_KEY to fetch video.
+              // Use process.env.API_KEY to fetch video.
               const videoResponse = await fetch(`${downloadLink}&key=${process.env.API_KEY}`);
               const videoBlob = await videoResponse.blob();
               const objectUrl = URL.createObjectURL(videoBlob);
@@ -101,7 +100,7 @@ export const useVeo = () => {
 
     } catch (e: any) {
       console.error(e);
-      // FIX: Handle API key error during initial call.
+      // Handle API key error during initial call.
       if (e.message?.includes('Requested entity was not found.') && window.aistudio) {
          const keyError = 'Your API key seems invalid. Please select a key from a project with billing enabled. For more info, visit ai.google.dev/gemini-api/docs/billing';
          setError(keyError);

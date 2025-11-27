@@ -1,9 +1,8 @@
-import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
+import { GoogleGenAI, GenerateContentResponse, Operation } from "@google/genai";
 import type { UploadedFile, Model } from '../types';
 
-// FIX: Per guidelines, API key is from process.env.API_KEY.
-// A new instance is created for each call to use the latest key,
-// especially important for VEO models where the key can be updated by the user.
+// Per guidelines, API key is from process.env.API_KEY.
+// A new instance is created for each call to use the latest key.
 const getAi = () => {
   return new GoogleGenAI({ apiKey: process.env.API_KEY });
 };
@@ -24,7 +23,6 @@ export const generateTextStream = async (
   onStreamUpdate: (chunk: string) => void,
   onStreamEnd: (sources?: {uri: string, title: string}[]) => void,
 ) => {
-  // FIX: Use synchronous getAi and create a new instance.
   const ai = getAi();
   const contents = [];
   if (file) {
@@ -56,7 +54,6 @@ export const generateTextStream = async (
 };
 
 export const generateImage = async (model: Model, prompt: string, file: UploadedFile | null): Promise<{ imageUrl: string; text: string }> => {
-  // FIX: Use synchronous getAi and create a new instance.
   const ai = getAi();
   const parts: any[] = [];
   if (file) {
@@ -91,32 +88,39 @@ export const generateImage = async (model: Model, prompt: string, file: Uploaded
   return { imageUrl, text };
 };
 
-export const startVideoGeneration = async (model: Model, prompt: string, file: UploadedFile | null): Promise<any> => {
-  // FIX: Use synchronous getAi and create a new instance.
+// FIX: Implement and export startVideoGeneration for Veo models.
+export const startVideoGeneration = async (
+  model: Model,
+  prompt: string,
+  file: UploadedFile | null
+): Promise<Operation> => {
   const ai = getAi();
-
-  const payload: any = {
-    model: model.geminiModel,
-    prompt,
-    config: {
-      numberOfVideos: 1,
-      resolution: '720p',
-      aspectRatio: '16:9',
-    },
+  
+  const config: any = {
+    numberOfVideos: 1,
+    resolution: '720p',
+    aspectRatio: '16:9'
   };
 
-  if (file) {
-    payload.image = {
-      imageBytes: file.base64,
-      mimeType: file.mimeType,
-    };
-  }
+  const imagePayload = file ? {
+    imageBytes: file.base64,
+    mimeType: file.mimeType,
+  } : undefined;
 
-  return ai.models.generateVideos(payload);
+  const operation = await ai.models.generateVideos({
+    model: model.geminiModel,
+    prompt: prompt,
+    image: imagePayload,
+    config: config,
+  });
+  return operation;
 };
 
-export const checkVideoGenerationStatus = async (operation: any): Promise<any> => {
-  // FIX: Use synchronous getAi and create a new instance.
+// FIX: Implement and export checkVideoGenerationStatus for Veo models.
+export const checkVideoGenerationStatus = async (
+  operation: Operation
+): Promise<Operation> => {
   const ai = getAi();
-  return ai.operations.getVideosOperation({ operation });
+  const updatedOperation = await ai.operations.getVideosOperation({ operation });
+  return updatedOperation;
 };
